@@ -4,4 +4,9 @@ raw_examples = [
     '100489006730000040000001295007120600500703008006085700914600000020000037800512004'
 ]
 
-examples = [[list(map(int, entry[x*9:x*9+9])) for x in range(9)] for entry in raw_examples]
+raw_correct = [
+    '435269781682571493197834562826195347374682915951743628519326874248957136763418259'
+]
+
+correct_examples = [list(map(int, entry[:])) for entry in raw_correct]
+examples = [list(map(int, entry[:])) for entry in raw_examples]

@@ -11,10 +11,14 @@ class CellState:
 
 
 class CellWidget(QFrame):
-    _bg_display = QColor(255, 255, 255)  # White
-    _bg_entry = QColor(0, 191, 255)  # deepskyblue
+    _bg_colors = {
+        'display': QColor(255, 255, 255),  # White
+        'entry': QColor(0, 191, 255),  # deepskyblue
+        'failure': QColor(255,0,0), # Red
+        'victory': QColor(50, 205, 50)  # limegreen
+    }
+
     _fg_color = QColor(0, 0, 0)  # Black
-    _bg_victory = QColor(50, 205, 50)  # limegreen
 
     def __init__(self, index: int, parent=None):
         super(CellWidget, self).__init__(parent)
@@ -30,6 +34,11 @@ class CellWidget(QFrame):
     def set_value(self, value: int):
         self._state.last_digit = self._state.digit
         self._state.digit = value
+        self.update()
+
+    def set_mode(self, mode: str):
+        if mode in ['victory', 'display', 'entry', 'failure']:
+            self._state.mode = mode
         self.update()
 
     def keyPressEvent(self, event: QKeyEvent):
@@ -61,7 +70,7 @@ class CellWidget(QFrame):
         painter.setRenderHint(QPainter.Antialiasing)
 
         # Draw background
-        painter.setBrush(QBrush(self.bg()))
+        painter.setBrush(QBrush(self._bg_colors[self._state.mode]))
         painter.drawRect(event.rect())
 
         # Draw digit
@@ -73,15 +82,9 @@ class CellWidget(QFrame):
         flags = Qt.AlignCenter | Qt.TextJustificationForced
         painter.drawText(event.rect(), flags, digit)
 
-    def bg(self):
-        if self._state.mode == 'display':
-            return self._bg_display
-        elif self._state.mode == 'victory':
-            return self._bg_victory
-        return self._bg_entry
-
     def event(self, event: QEvent) -> bool:
         if event.type() == QEvent.MaxUser:
             self._state.mode = 'victory' if event.victorious() else 'display'
+            self.update()
             return True
         return QWidget.event(self, event)

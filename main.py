@@ -18,10 +18,13 @@ class Center(QWidget):
         self.solutionButton = QPushButton('Check Solution')
         self.exampleButton = QPushButton('Example')
         self.correctButton = QPushButton('Correct')
+        self.solveButton = QPushButton('Solve')
         buttons = QHBoxLayout()
         buttons.addWidget(self.solutionButton)
         buttons.addWidget(self.exampleButton)
         buttons.addWidget(self.correctButton)
+        buttons.addWidget(self.solveButton)
+        self.solveButton.clicked.connect(self.grid.solve)
         self.solutionButton.clicked.connect(self.grid.handle_victory)
         self.exampleButton.clicked.connect(self.grid.load_random_example)
         self.correctButton.clicked.connect(self.grid.load_correct)
@@ -101,7 +104,7 @@ class MainWindow(QMainWindow):
 
     def open_file(self):
         file_name = QFileDialog.getOpenFileName(self, 'Select File To Open',
-                                                '' if self._save_lc is None else self._save_loc)[0]
+                                                '' if self._save_loc is None else self._save_loc)[0]
         print(type(file_name), file_name)
         if file_name != '':
             p = re.compile(r'((txt\.)[^/]+)(/.+)')
@@ -109,11 +112,9 @@ class MainWindow(QMainWindow):
             if match.group(2)[::-1] == '.txt':
                 try:
                     with open(file_name, 'r') as f:
-                        from grid_widget import Sudoku
                         content = f.readline().split(',')
-                        rows = [content[i*9:i*9+9] for i in range(9)]
-                        board_list = [list(map(lambda c: int(c), row)) for row in rows]
-                        self.centralWidget().grid.load(Sudoku(board_list))
+                        board_list = [int(c) for c in content]
+                        self.centralWidget().grid.load(board_list)
                         self._save_loc = match.group(3)[::-1]
                         self._file_name = match.group(1)[::-1]
                 except OSError:

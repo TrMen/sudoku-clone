@@ -1,18 +1,11 @@
 from PySide2.QtCore import QEvent, QCoreApplication, Qt
-from PySide2.QtGui import QGuiApplication, QPalette, QKeyEvent
-from PySide2.QtWidgets import QWidget, QMessageBox, QGridLayout, QApplication
+from PySide2.QtGui import QGuiApplication, QPalette
+from PySide2.QtWidgets import QWidget, QMessageBox, QGridLayout
 from cell_widget import CellWidget
 import itertools
 import examples
 import random
-
-
-class Sudoku:
-    def __init__(self, state: list = None):
-        if state is not None:
-            self.board = state
-        else:
-            self.board = [[0 for _ in range(9)] for _ in range(9)]
+import solver
 
 
 class VictoryEvent(QEvent):
@@ -93,18 +86,28 @@ class GridWidget(QWidget):
         msg_box.setWindowTitle('Solution is:')
         msg_box.exec_()
 
-    def load(self, game: Sudoku = None):
+    def solve(self):
+        sudoku = [c.value() for c in self.cells]
+        if not solver.solve(sudoku, self.cells):
+            msg_box = QMessageBox()
+            msg_box.setText('Not solvable')
+            msg_box.setWindowTitle('Sudoku is:')
+            msg_box.exec_()
+            for cell in self.cells:
+                cell.set_mode('display')
+
+    def load(self, game: list = None):
         if game is None:
-            game = Sudoku()
-        for x in range(9):
-            for y in range(9):
-                self.cells[x*9+y].set_value(game.board[x][y])
+            for cell in self.cells:
+                cell.set_value(0)
+        else:
+            for x in range(81):
+                self.cells[x].set_value(game[x])
+        for cell in self.cells:
+            cell.set_mode('display')
 
     def load_correct(self):
-        correct = [[4,3,5,2,6,9,7,8,1], [6,8,2,5,7,1,4,9,3], [1,9,7,8,3,4,5,6,2],
-                  [8,2,6,1,9,5,3,4,7],[3,7,4,6,8,2,9,1,5],[9,5,1,7,4,3,6,2,8],
-                  [5,1,9,3,2,6,8,7,4],[2,4,8,9,5,7,1,3,6],[7,6,3,4,1,8,2,5,9]]
-        self.load(Sudoku(correct))
+        self.load(random.choice(examples.correct_examples))
 
     def load_random_example(self):
-        self.load((Sudoku(random.choice(examples.examples))))
+        self.load(random.choice(examples.examples))
