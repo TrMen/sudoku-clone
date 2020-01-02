@@ -1,5 +1,5 @@
 # solves a sudoku with a recursive backtracking algorithm
-import time
+import time, random
 
 
 def find_empty_location(sudoku: list) -> [bool, int]:
@@ -49,8 +49,12 @@ def solve(sudoku: list, cells: list) -> bool:
 
     loc = empty_loc[1]
 
-    # Go through 1 to 9
-    for digit in range(1, 10):
+    # Go through 1 to 9 in a random order, this has two reasons:
+    # 1. Randomisation in constraint satisfaction usually speeds up solutions
+    # 2. In case I want to add random generation of valid boards, this can be used to generate finished board
+    order = list(range(1, 10))
+    random.shuffle(order)
+    for digit in order:
         if location_is_valid(sudoku, loc, digit):
 
             # Assign guess

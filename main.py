@@ -105,7 +105,6 @@ class MainWindow(QMainWindow):
     def open_file(self):
         file_name = QFileDialog.getOpenFileName(self, 'Select File To Open',
                                                 '' if self._save_loc is None else self._save_loc)[0]
-        print(type(file_name), file_name)
         if file_name != '':
             p = re.compile(r'((txt\.)[^/]+)(/.+)')
             match = p.match(file_name[::-1])
